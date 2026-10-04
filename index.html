@@ -127,7 +127,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;background:var(--
 .modal-field input:focus{border-color:var(--ok);}
 .modal-divider{border-top:1px solid var(--border);margin:2px 0;}
 .items-list{display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto;}
-.item-row{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--surface-hi);border-radius:7px;}
+.item-row{display:flex;align-items:center;gap:8px;padding:8px;background:var(--surface-hi);border-radius:7px;cursor:pointer;}
 .item-cb{width:15px;height:15px;accent-color:var(--ok);cursor:pointer;flex-shrink:0;}
 .item-name{flex:1;font-size:12px;color:var(--fg);min-width:0;}
 .item-name.done{text-decoration:line-through;color:var(--fg-3);}
@@ -175,14 +175,18 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;background:var(--
    ce qui n'existe pas au doigt : on les rend visibles en permanence,
    et on agrandit les zones de contact au doigt. */
 @media (hover:none), (pointer:coarse){
-  .block-edit-btn,.block-check-btn{opacity:.85;}
-  .resize-handle{width:16px;}
+  .block-edit-btn,.block-check-btn{
+    opacity:.95;width:22px;height:22px;padding:0;font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .resize-handle{width:18px;}
   .resize-handle::after{opacity:.55;}
-  .block{min-height:44px;}
-  .block.devoir{min-height:44px;}
-  .item-cb{width:19px;height:19px;}
-  .label-add-btn{padding:6px 8px;font-size:15px;}
-  .item-del{padding:5px 8px;font-size:15px;}
+  .block{min-height:46px;}
+  .block.devoir{min-height:46px;}
+  .item-cb{width:20px;height:20px;}
+  .item-row{padding:10px 8px;}
+  .label-add-btn{padding:8px 10px;font-size:16px;}
+  .item-del{padding:7px 9px;font-size:16px;}
 }
 
 /* ── iPad / tablette (portrait et paysage) ── */
@@ -619,7 +623,7 @@ function renderModal(blockId) {
     const items = b.items || [];
     itemsHtml = items.length
       ? `<div class="items-list">${items.map(it => `
-          <div class="item-row">
+          <div class="item-row" data-check-item="${b.id}:${it.id}">
             <input type="checkbox" class="item-cb"${it.done?' checked':''} data-check-item="${b.id}:${it.id}">
             <span class="item-name${it.done?' done':''}">${esc(it.name)}</span>
             <button class="item-del" data-del-item="${b.id}:${it.id}">×</button>
@@ -825,17 +829,17 @@ document.addEventListener('click', e => {
   const delB = e.target.closest('[data-del-block]');
   if (delB) { deleteBlock(delB.dataset.delBlock); return; }
 
-  // item checkbox
-  const checkIt = e.target.closest('[data-check-item]');
-  if (checkIt) {
-    const [bId, itId] = checkIt.dataset.checkItem.split(':');
-    toggleItem(bId, itId); return;
-  }
-  // item delete
+  // item delete (checked first: the × sits inside the clickable row)
   const delIt = e.target.closest('[data-del-item]');
   if (delIt) {
     const [bId, itId] = delIt.dataset.delItem.split(':');
     deleteItem(bId, itId); return;
+  }
+  // item checkbox — toute la ligne est cliquable, pas juste la petite case
+  const checkIt = e.target.closest('[data-check-item]');
+  if (checkIt) {
+    const [bId, itId] = checkIt.dataset.checkItem.split(':');
+    toggleItem(bId, itId); return;
   }
   // add item
   const addIt = e.target.closest('[data-add-item]');

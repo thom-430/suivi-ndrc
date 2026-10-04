@@ -437,7 +437,7 @@ function subscribeFirebase() {
   try {
     fsDb.collection('state').doc('blocks').onSnapshot(snap => {
       if (saveTimer) return;
-      if (snap.exists()) {
+      if (snap.exists) {
         const data = snap.data();
         if (data && Array.isArray(data.blocks)) {
           blocks = data.blocks;

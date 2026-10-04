@@ -439,13 +439,22 @@ function isoWeek(d) {
 }
 function weekToLinear(w) { return w >= 36 ? w - 36 : w + 16; }
 
-/* ── persistence ── */
+/* ── persistence ──
+   Chaque sauvegarde porte un horodatage (ts). Règle d'or : une donnée
+   plus ANCIENNE n'écrase jamais une donnée plus RÉCENTE, qu'elle vienne
+   du local ou de Firestore. Ça évite la perte de modifs faites hors-ligne
+   si la synchro vers le serveur n'a pas vraiment abouti (fréquent sur
+   Safari/PWA en mode hors-ligne) : au lieu d'écraser, on re-pousse. */
 function initBlocks() { return BLOCKS_SEED.map(b => ({...b, items: []})); }
+let localTs = 0; // horodatage de la version actuellement en mémoire (blocks)
+
 function loadLocal() {
   try {
     const raw = localStorage.getItem('bts-ndrc-v4');
     if (!raw) return;
-    const saved = JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    const saved = Array.isArray(parsed) ? parsed : parsed.blocks; // compat ancien format (tableau brut)
+    localTs = Array.isArray(parsed) ? 0 : (parsed.ts || 0);
     if (Array.isArray(saved)) {
       const byId = Object.fromEntries(saved.map(b => [b.id, b]));
       blocks = blocks.map(b => byId[b.id] ? {...b, ...byId[b.id]} : b);
@@ -454,42 +463,45 @@ function loadLocal() {
     }
   } catch {}
 }
-function saveLocal() { try { localStorage.setItem('bts-ndrc-v4', JSON.stringify(blocks)); } catch {} }
+function saveLocal(ts) { try { localStorage.setItem('bts-ndrc-v4', JSON.stringify({ blocks, ts })); } catch {} }
 function schedSave() { clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 350); }
 async function doSave() {
-  saveLocal();
+  saveTimer = null; // on libère le verrou tout de suite — pas besoin d'attendre le réseau pour ça
+  const ts = Date.now();
+  localTs = ts;
+  saveLocal(ts);
   if (fsDb) {
-    try { await fsDb.collection('state').doc('blocks').set({ blocks }); } catch(e) { console.warn('save (firebase)', e); }
+    try { await fsDb.collection('state').doc('blocks').set({ blocks, ts }); } catch(e) { console.warn('save (firebase)', e); }
   } else if (db) {
-    try { await db.doc('state/blocks').set({ blocks }); } catch(e) { console.warn('save (artifact)', e); }
+    try { await db.doc('state/blocks').set({ blocks, ts }); } catch(e) { console.warn('save (artifact)', e); }
   }
-  saveTimer = null;
+}
+function handleRemoteSnapshot(data) {
+  if (!data || !Array.isArray(data.blocks)) return;
+  const remoteTs = data.ts || 0;
+  if (remoteTs < localTs) {
+    // notre version locale est plus récente que ce que le serveur a reçu
+    // (ex : la sauvegarde hors-ligne n'a jamais vraiment abouti) → on la
+    // garde et on la repousse, au lieu de perdre la modif.
+    schedSave();
+    return;
+  }
+  blocks = data.blocks;
+  localTs = remoteTs;
+  saveLocal(remoteTs);
+  renderAll();
 }
 function subscribeFirebase() {
   try {
     fsDb.collection('state').doc('blocks').onSnapshot(snap => {
-      if (saveTimer) return;
-      if (snap.exists) {
-        const data = snap.data();
-        if (data && Array.isArray(data.blocks)) {
-          blocks = data.blocks;
-          renderAll();
-        }
-      }
+      if (snap.exists) handleRemoteSnapshot(snap.data());
     }, err => console.warn('snap (firebase)', err));
   } catch(e) { console.warn('sub (firebase)', e); }
 }
 function subscribeArtifact(dbRef) {
   try {
     dbRef.doc('state/blocks').onSnapshot(snap => {
-      if (saveTimer) return;
-      if (snap.exists) {
-        const data = snap.data();
-        if (data && Array.isArray(data.blocks)) {
-          blocks = data.blocks;
-          renderAll();
-        }
-      }
+      if (snap.exists) handleRemoteSnapshot(snap.data());
     }, err => { if (err?.code !== 'unavailable') console.warn('snap (artifact)', err); });
   } catch(e) { console.warn('sub (artifact)', e); }
 }

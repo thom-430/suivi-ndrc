@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>BTS NDRC – Planning</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -88,7 +93,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;background:var(--
 .break-txt{writing-mode:vertical-rl;text-orientation:mixed;font-size:8px;color:var(--fg-3);white-space:nowrap;letter-spacing:.02em;}
 
 /* BLOCK */
-.block{position:relative;margin:3px;border-radius:6px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 3px;min-height:40px;border:1px solid var(--bc,var(--border));background:color-mix(in srgb,var(--bc,var(--fg-3)) 10%,var(--surface));transition:filter .12s;touch-action:none;user-select:none;}
+.block{position:relative;margin:3px;border-radius:6px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 3px;min-height:40px;border:1px solid var(--bc,var(--border));background:color-mix(in srgb,var(--bc,var(--fg-3)) 10%,var(--surface));transition:filter .12s;touch-action:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;}
 .block:hover{filter:brightness(1.12);}
 .block.dragging{filter:brightness(1.3);z-index:20;box-shadow:0 4px 14px rgba(0,0,0,.35);}
 .block-fill{position:absolute;left:0;top:0;bottom:0;background:var(--bc,var(--ok));opacity:.38;transition:width .45s cubic-bezier(.4,0,.2,1);z-index:0;pointer-events:none;}
@@ -165,13 +170,61 @@ body{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;background:var(--
 #toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);left:50%;transform:translateX(-50%) translateY(50px);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:7px 16px;font-size:12px;font-weight:600;color:var(--fg);z-index:999;opacity:0;pointer-events:none;transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .28s;white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 
+/* ── touch devices (iPad, iPhone, tablettes tactiles) ──
+   Les boutons ✎/✓ et les poignées de resize sont cachés derrière :hover,
+   ce qui n'existe pas au doigt : on les rend visibles en permanence,
+   et on agrandit les zones de contact au doigt. */
+@media (hover:none), (pointer:coarse){
+  .block-edit-btn,.block-check-btn{opacity:.85;}
+  .resize-handle{width:16px;}
+  .resize-handle::after{opacity:.55;}
+  .block{min-height:44px;}
+  .block.devoir{min-height:44px;}
+  .item-cb{width:19px;height:19px;}
+  .label-add-btn{padding:6px 8px;font-size:15px;}
+  .item-del{padding:5px 8px;font-size:15px;}
+}
+
+/* ── iPad / tablette (portrait et paysage) ── */
+@media (max-width:1024px){
+  .sem-section{padding:16px 12px 4px;}
+  .label-cell,.corner-cell{min-width:148px;}
+  .global-bars{min-width:160px;}
+}
+
+/* ── iPad portrait / grands téléphones ── */
+@media (max-width:834px){
+  #header-row1{gap:10px;}
+  .global-bars{order:3;flex-basis:100%;max-width:none;}
+  #app-title{font-size:12px;}
+}
+
+/* ── iPhone ── */
 @media (max-width:640px){
   #header{padding:11px 12px;}
   .sem-section{padding:14px 10px 4px;}
-  .label-cell,.corner-cell{min-width:132px;}
+  .label-cell,.corner-cell{min-width:128px;}
   .label-mod-name{font-size:10.5px;}
+  .label-mod-hours{font-size:8.5px;}
+  .block-label{font-size:9px;}
+  .block-hours{font-size:8px;}
+  .week-cell{font-size:8.5px;}
+  .modal{padding:15px;gap:10px;}
+  .modal-row{flex-wrap:wrap;}
+  .modal-field{min-width:90px;}
+}
+
+/* ── petits iPhone (SE, mini) ── */
+@media (max-width:380px){
+  #app-title{font-size:11px;}
+  .gbar-label{width:46px;font-size:8.5px;}
+  .week-badge,#week-badge{font-size:10px;padding:3px 8px;}
+  #export-btn{font-size:10px;padding:3px 8px;}
+  .label-cell,.corner-cell{min-width:112px;}
 }
 </style>
+</head>
+<body>
 
 <div id="app">
   <header id="header">
@@ -1037,4 +1090,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
+</script>
+</body>
+</html>
 </script>

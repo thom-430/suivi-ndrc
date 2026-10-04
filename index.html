@@ -233,37 +233,82 @@ const MONTHS_S2 = [
   {name:'juin',    weeks:[23,24,25,26,27]}
 ];
 
-/* ═══ BLOCKS SEED (ma meilleure lecture de la photo — tout est modifiable) ═══ */
-function mkBlocks(modId, sem, arr) {
-  return arr.map((b, i) => ({
-    id: `${modId}-s${sem}-${i}`, modId, sem,
-    label: b[0], type: b[1], wStart: b[2], wEnd: b[3], hours: b[4],
-    done: false, items: []
-  }));
+/* ═══ BLOCKS SEED (positions définitives — repositionnées à la main par Thom) ═══ */
+function mkBlk(id, modId, sem, label, type, wStart, wEnd, hours) {
+  return { id, modId, sem, label, type, wStart, wEnd, hours, done: false, items: [] };
 }
 const BLOCKS_SEED = [
-  ...mkBlocks('e1',1,[['M1/S1','cours',36,37,4],['M1/S2','cours',38,39,4],['M2/S1','cours',40,41,4],['M2/S2','cours',42,43,1],
-    ['D1','devoir',48,48,0],['M3/S1','cours',49,50,4],['M3/S2','cours',51,52,4],['D2','devoir',5,5,4]]),
-  ...mkBlocks('e1',2,[['M4/S1','cours',6,7,6],['M4/S2','cours',8,9,6],['D3','devoir',12,12,4],
-    ['M5/S1-S2','cours',13,14,8],['D4','devoir',15,15,4]]),
+  mkBlk('e1-s1-0','e1',1,'M1/S1','cours',36,38,4),
+  mkBlk('e1-s1-1','e1',1,'M1/S2','cours',39,41,4),
+  mkBlk('e1-s1-2','e1',1,'M2/S1','cours',42,44,4),
+  mkBlk('n5nxgud','e1',1,'M2/S2','cours',45,47,1),
+  mkBlk('e1-s1-3','e1',1,'D1','devoir',48,48,0),
+  mkBlk('e1-s1-4','e1',1,'M3/S1','cours',49,51,4),
+  mkBlk('e1-s1-5','e1',1,'M3/S2','cours',52,2,4),
+  mkBlk('e1-s1-6','e1',1,'D2','devoir',5,5,4),
 
-  ...mkBlocks('e2',1,[['Unité 1','cours',36,44,16],['Unité 2','cours',45,47,14],['Unité 3','cours',49,51,14],['Unité 4','cours',5,5,10]]),
-  ...mkBlocks('e2',2,[['Unité 4','cours',6,9,4],['D1','devoir',10,10,2],['Unité 5','cours',11,13,14],['Unité 6','cours',14,16,14],['D2','devoir',15,15,2]]),
+  mkBlk('e1-s2-0','e1',2,'M4/S1','cours',7,9,6),
+  mkBlk('e1-s2-1','e1',2,'M4/S2','cours',10,11,6),
+  mkBlk('e1-s2-2','e1',2,'D3','devoir',12,12,4),
+  mkBlk('e1-s2-3','e1',2,'M5/S1-S2','cours',13,15,8),
+  mkBlk('e1-s2-4','e1',2,'D4','devoir',16,16,4),
 
-  ...mkBlocks('e3',1,[['S1','cours',37,39,14],['S2','cours',41,43,10],['S3','cours',45,47,9],
-    ['D1','devoir',48,48,6],['D2','devoir',48,48,1],['S4','cours',49,50,11],['S5','cours',1,3,14],['S6','cours',5,5,8]]),
-  ...mkBlocks('e3',2,[['D3','devoir',6,6,1],['D4','devoir',7,7,6],['S7','cours',10,13,14],
-    ['D5','devoir',15,15,1],['S8','cours',15,16,19],['D6','devoir',16,16,6]]),
+  mkBlk('e2-s1-0','e2',1,'Unité 1','cours',36,42,16),
+  mkBlk('e2-s1-1','e2',1,'Unité 2','cours',45,48,14),
+  mkBlk('e2-s1-2','e2',1,'Unité 3','cours',50,2,14),
+  mkBlk('e2-s1-3','e2',1,'Unité 4','cours',4,5,10),
 
-  ...mkBlocks('e4',2,[['S1','cours',10,13,80],['D1','devoir',14,14,1],['D2','devoir',15,15,4],['ED','devoir',15,15,5],['ED','devoir',16,16,5]]),
+  mkBlk('e2-s2-0','e2',2,'Unité 4','cours',6,8,4),
+  mkBlk('e2-s2-1','e2',2,'D1','devoir',9,9,2),
+  mkBlk('e2-s2-2','e2',2,'Unité 5','cours',10,12,14),
+  mkBlk('e2-s2-3','e2',2,'Unité 6','cours',13,15,14),
+  mkBlk('e2-s2-4','e2',2,'D2','devoir',16,16,2),
 
-  ...mkBlocks('e5',1,[['S1','cours',36,39,95],['D1','devoir',40,40,1],['D2','devoir',41,41,4],
-    ['ED','devoir',42,42,6],['ED','devoir',43,43,6],['S2','cours',45,47,88],['D3','devoir',49,49,1],
-    ['D4','devoir',50,50,4],['D5','devoir',51,51,2],['ED','devoir',52,52,6],['ED','devoir',5,5,1]]),
-  ...mkBlocks('e5',2,[['S3','cours',6,7,15]]),
+  mkBlk('e3-s1-0','e3',1,'S1','cours',37,38,14),
+  mkBlk('e3-s1-1','e3',1,'S2','cours',41,42,10),
+  mkBlk('e3-s1-2','e3',1,'S3','cours',45,46,9),
+  mkBlk('e3-s1-4','e3',1,'D1','devoir',47,47,6),
+  mkBlk('e3-s1-3','e3',1,'D2','devoir',48,48,1),
+  mkBlk('e3-s1-5','e3',1,'S4','cours',50,51,11),
+  mkBlk('e3-s1-6','e3',1,'S5','cours',2,3,14),
+  mkBlk('e3-s1-7','e3',1,'S6','cours',4,5,8),
 
-  ...mkBlocks('e6',1,[['S1','cours',49,51,55],['D1','devoir',1,1,1],['D2','devoir',2,2,4]]),
-  ...mkBlocks('e6',2,[['S2','cours',10,13,75],['D3','devoir',14,14,1],['D4','devoir',15,15,4],['ED','devoir',16,16,10]])
+  mkBlk('e3-s2-0','e3',2,'D3','devoir',6,6,1),
+  mkBlk('e3-s2-1','e3',2,'D4','devoir',7,7,6),
+  mkBlk('e3-s2-2','e3',2,'S7','cours',9,11,14),
+  mkBlk('e3-s2-4','e3',2,'S8','cours',13,14,19),
+  mkBlk('e3-s2-3','e3',2,'D5','devoir',15,15,1),
+  mkBlk('e3-s2-5','e3',2,'D6','devoir',16,16,6),
+
+  mkBlk('e4-s2-0','e4',2,'S1','cours',8,11,80),
+  mkBlk('e4-s2-1','e4',2,'D1','devoir',12,12,1),
+  mkBlk('e4-s2-2','e4',2,'D2','devoir',13,13,4),
+  mkBlk('e4-s2-3','e4',2,'E4','devoir',14,14,5),
+  mkBlk('e4-s2-4','e4',2,'E4','devoir',15,15,5),
+
+  mkBlk('e5-s1-0','e5',1,'S1','cours',36,39,95),
+  mkBlk('e5-s1-1','e5',1,'D1','devoir',40,40,1),
+  mkBlk('e5-s1-2','e5',1,'D2','devoir',41,41,4),
+  mkBlk('e5-s1-3','e5',1,'ED','devoir',42,42,6),
+  mkBlk('e5-s1-4','e5',1,'ED','devoir',43,43,6),
+  mkBlk('e5-s1-5','e5',1,'S2','cours',44,48,88),
+  mkBlk('e5-s1-6','e5',1,'D3','devoir',49,49,1),
+  mkBlk('e5-s1-7','e5',1,'D4','devoir',50,50,4),
+  mkBlk('e5-s1-8','e5',1,'D5','devoir',51,51,2),
+  mkBlk('e5-s1-9','e5',1,'ED','devoir',52,52,6),
+  mkBlk('2qpmgxt','e5',1,'ED','devoir',2,2,1),
+  mkBlk('sy5nmhg','e5',1,'ED','devoir',5,5,1),
+
+  mkBlk('e5-s2-0','e5',2,'E5','cours',6,7,15),
+
+  mkBlk('e6-s1-0','e6',1,'S1','cours',49,1,55),
+  mkBlk('e6-s1-1','e6',1,'D1','devoir',2,2,1),
+  mkBlk('e6-s1-2','e6',1,'D2','devoir',3,3,4),
+
+  mkBlk('e6-s2-0','e6',2,'S2','cours',6,10,75),
+  mkBlk('e6-s2-1','e6',2,'D3','devoir',11,11,1),
+  mkBlk('e6-s2-2','e6',2,'D4','devoir',12,12,4),
+  mkBlk('e6-s2-3','e6',2,'E6','devoir',13,14,10)
 ];
 const WEEKS_NUM_S1 = WEEKS_S1.filter(w => typeof w === 'number');
 const WEEKS_NUM_S2 = WEEKS_S2.filter(w => typeof w === 'number');

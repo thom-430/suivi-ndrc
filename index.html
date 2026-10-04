@@ -614,6 +614,10 @@ function renderAll() {
   document.getElementById('gp-expected').textContent = ep + '%';
 
   const sems = document.getElementById('semesters');
+  // on garde la position de défilement horizontal de chaque grille (sinon
+  // reconstruire le HTML les ramène tout à gauche à chaque modification)
+  const prevScrolls = Array.from(sems.querySelectorAll('.grid-wrap')).map(el => el.scrollLeft);
+
   sems.innerHTML = `
     <section class="sem-section">
       <div class="sem-title-row">
@@ -629,6 +633,10 @@ function renderAll() {
       </div>
       <div class="grid-wrap">${renderSemester(2, WEEKS_S2, MONTHS_S2)}</div>
     </section>`;
+
+  Array.from(sems.querySelectorAll('.grid-wrap')).forEach((el, i) => {
+    if (prevScrolls[i]) el.scrollLeft = prevScrolls[i];
+  });
 
   const legend = document.getElementById('legend');
   legend.innerHTML = MODS.map(m => `<span><i style="background:${m.hex}"></i>${m.code}</span>`).join('');
